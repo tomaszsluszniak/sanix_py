@@ -1,3 +1,3 @@
 # Sanix
 
-Python wrapper for getting measurements data from Sanix devices.
+Python wrapper for getting measurement data from Sanix devices.
