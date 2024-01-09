@@ -1,4 +1,5 @@
 """Sanix API class."""
+import asyncio
 from http import HTTPStatus
 
 import aiohttp
@@ -19,16 +20,17 @@ class Sanix:
         """Fetch the update."""
         _url = f"{self.SANIX_API_HOST}/api/measurement/read.php?serial_no={self._serial_no}&auth_token={self._token}"
 
-        async with self._session.get(_url) as resp:
-            try:
-                _json = await resp.json()
-            except Exception as err:
-                raise SanixException(
-                    HTTPStatus.BAD_REQUEST, "Something went wrong"
-                ) from err
+        async with asyncio.timeout(10):
+            async with self._session.get(_url) as resp:
+                try:
+                    _json = await resp.json()
+                except Exception as err:
+                    raise SanixException(
+                        HTTPStatus.BAD_REQUEST, "Something went wrong"
+                    ) from err
 
-            _message = _json.get("message")
-            if _message and _message == "Brak autoryzacji!":
-                raise SanixException(HTTPStatus.UNAUTHORIZED, "Could not authorize.")
+                _message = _json.get("message")
+                if _message and _message == "Brak autoryzacji!":
+                    raise SanixException(HTTPStatus.UNAUTHORIZED, "Could not authorize.")
 
-            return _json
+                return _json
