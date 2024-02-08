@@ -1,7 +1,7 @@
 import setuptools
 
 REQUIRES = [
-    'aiohttp>=3.9.1',
+    'requests'
 ]
 
 with open("README.md") as fh:
@@ -9,7 +9,7 @@ with open("README.md") as fh:
 
 setuptools.setup(
     name='sanix',
-    version='1.0.2',
+    version='1.0.3',
     description=
     'Python wrapper for getting measurements data from Sanix devices.',
     long_description=long_description,

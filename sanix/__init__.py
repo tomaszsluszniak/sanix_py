@@ -1,8 +1,5 @@
 """Sanix API class."""
-import asyncio
-from http import HTTPStatus
-
-import aiohttp
+import requests
 
 from .exceptions import SanixException
 
@@ -10,27 +7,24 @@ class Sanix:
     """Sanix API."""
     SANIX_API_HOST = "https://sanix.bitcomplex.pl"
 
-    def __init__(self, serial_no, token, session: aiohttp.ClientSession) -> None:
+    def __init__(self, serial_no, token) -> None:
         """Initialize the class instance."""
         self._serial_no = serial_no
         self._token = token
-        self._session = session
 
-    async def fetch_data(self):
+    def fetch_data(self):
         """Fetch the update."""
         _url = f"{self.SANIX_API_HOST}/api/measurement/read.php?serial_no={self._serial_no}&auth_token={self._token}"
 
-        async with asyncio.timeout(10):
-            async with self._session.get(_url) as resp:
-                try:
-                    _json = await resp.json()
-                except Exception as err:
-                    raise SanixException(
-                        HTTPStatus.BAD_REQUEST, "Something went wrong"
-                    ) from err
-
-                _message = _json.get("message")
-                if _message and _message == "Brak autoryzacji!":
-                    raise SanixException(HTTPStatus.UNAUTHORIZED, "Could not authorize.")
-
-                return _json
+        try:
+            resp = requests.get(_url, timeout=10)
+            resp.raise_for_status()
+            return resp.json()
+        except requests.HTTPError as err:
+            if err.response is not None:
+                if err.response.status_code == 401:
+                    raise SanixException("Could not authorize.") from err
+        except requests.ConnectTimeout as ex:
+            raise SanixException("Connection timeout while connecting to Sanix API") from ex
+        except requests.ConnectionError as ex:
+            raise SanixException("Connection error while connecting to Sanix API") from ex
