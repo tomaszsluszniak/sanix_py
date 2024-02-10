@@ -1,7 +1,7 @@
 """Sanix API class."""
 import requests
 
-from .exceptions import SanixException
+from .exceptions import SanixException, SanixInvalidAuthException
 
 class Sanix:
     """Sanix API."""
@@ -23,7 +23,7 @@ class Sanix:
         except requests.HTTPError as err:
             if err.response is not None:
                 if err.response.status_code == 401:
-                    raise SanixException("Could not authorize.") from err
+                    raise SanixInvalidAuthException("Could not authorize.") from err
         except requests.ConnectTimeout as ex:
             raise SanixException("Connection timeout while connecting to Sanix API") from ex
         except requests.ConnectionError as ex:
