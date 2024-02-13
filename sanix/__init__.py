@@ -1,7 +1,20 @@
 """Sanix API class."""
+import datetime
+from zoneinfo import ZoneInfo
 import requests
 
+from .const import (
+    ATTR_API_BATTERY,
+    ATTR_API_DEVICE_NO,
+    ATTR_API_DISTANCE,
+    ATTR_API_FILL_PERC,
+    ATTR_API_SERVICE_DATE,
+    ATTR_API_SSID,
+    ATTR_API_STATUS,
+    ATTR_API_TIME
+)
 from .exceptions import SanixException, SanixInvalidAuthException
+from .models import Measurement
 
 class Sanix:
     """Sanix API."""
@@ -19,7 +32,17 @@ class Sanix:
         try:
             resp = requests.get(_url, timeout=10)
             resp.raise_for_status()
-            return resp.json()
+            _json = resp.json()
+            return Measurement(
+                battery=_json[ATTR_API_BATTERY],
+                device_no=_json[ATTR_API_DEVICE_NO],
+                distance=_json[ATTR_API_DISTANCE],
+                fill_perc=_json[ATTR_API_FILL_PERC],
+                service_date=datetime.datetime.strptime(_json[ATTR_API_SERVICE_DATE], "%d.%m.%Y").date(),
+                ssid=_json[ATTR_API_SSID],
+                status=_json[ATTR_API_STATUS],
+                time=datetime.datetime.strptime(_json[ATTR_API_TIME], "%d.%m.%Y %H:%M:%S").replace(tzinfo=ZoneInfo("Europe/Warsaw"))
+            )
         except requests.HTTPError as err:
             if err.response is not None:
                 if err.response.status_code == 401:

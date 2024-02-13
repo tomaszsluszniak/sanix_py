@@ -9,7 +9,7 @@ with open("README.md") as fh:
 
 setuptools.setup(
     name='sanix',
-    version='1.0.4',
+    version='1.0.5',
     description=
     'Python wrapper for getting measurements data from Sanix devices.',
     long_description=long_description,
