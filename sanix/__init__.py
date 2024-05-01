@@ -1,5 +1,6 @@
 """Sanix API class."""
 import datetime
+import re
 from zoneinfo import ZoneInfo
 import requests
 
@@ -38,7 +39,7 @@ class Sanix:
                 device_no=_json[ATTR_API_DEVICE_NO],
                 distance=_json[ATTR_API_DISTANCE],
                 fill_perc=_json[ATTR_API_FILL_PERC],
-                service_date=datetime.datetime.strptime(_json[ATTR_API_SERVICE_DATE], "%d.%m.%Y").date(),
+                service_date=datetime.datetime.strptime(_json[ATTR_API_SERVICE_DATE], "%d.%m.%Y").date() if re.match('\d{2}.\d{2}.\d{4}', _json[ATTR_API_SERVICE_DATE]) else None,
                 ssid=_json[ATTR_API_SSID],
                 status=_json[ATTR_API_STATUS],
                 time=datetime.datetime.strptime(_json[ATTR_API_TIME], "%d.%m.%Y %H:%M:%S").replace(tzinfo=ZoneInfo("Europe/Warsaw"))
